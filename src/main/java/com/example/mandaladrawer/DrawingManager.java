@@ -94,6 +94,10 @@ public class DrawingManager {
         currentPosition = currentPosition.rotate(angle);
     }
 
+    public void goTo(double x, double y) {
+        currentPosition = new TurtlePosition(x, y, currentPosition.getHeading());
+    }
+
     public void raisePen() {
         penDown = false;
     }

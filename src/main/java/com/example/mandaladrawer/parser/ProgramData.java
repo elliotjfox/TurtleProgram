@@ -11,6 +11,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -126,6 +127,53 @@ public class ProgramData {
         return list;
     }
 
+    public static List<Double> parseArguments(ProgramData data) {
+        List<Double> arguments = new ArrayList<>();
+        List<String> tokens = data.getTokens();
+        List<String> relevantTokens = getUntil(tokens, "\n");
+
+        List<String> currentExpression = new ArrayList<>();
+
+        while (!relevantTokens.isEmpty()) {
+            if (relevantTokens.getFirst().equals("|")) {
+                relevantTokens.removeFirst();
+                arguments.add(parseExpression(data, currentExpression));
+                currentExpression.clear();
+            } else {
+                currentExpression.add(relevantTokens.removeFirst());
+            }
+        }
+
+        arguments.add(parseExpression(data, currentExpression));
+
+        return arguments;
+    }
+
+
+    public static List<Double> parseArguments(ProgramData data, String until) {
+        List<Double> arguments = new ArrayList<>();
+        List<String> tokens = data.getTokens();
+        List<String> relevantTokens = getUntil(tokens, until);
+
+        List<String> currentExpression = new ArrayList<>();
+
+        while (!relevantTokens.isEmpty()) {
+            if (relevantTokens.getFirst().equals("|")) {
+                relevantTokens.removeFirst();
+                tokens.removeFirst();
+                arguments.add(parseExpression(data, currentExpression));
+                currentExpression.clear();
+            } else {
+                tokens.removeFirst();
+                currentExpression.add(relevantTokens.removeFirst());
+            }
+        }
+
+        arguments.add(parseExpression(data, currentExpression));
+
+        return arguments;
+    }
+
     public static double parseExpression(ProgramData data) {
         return parseExpression(data, "\n");
     }
@@ -136,13 +184,46 @@ public class ProgramData {
         ExpressionParser expressionParser = new ExpressionParser(data.getVariables(), expressionTokens);
 
         return expressionParser.parseExpression();
+    }
 
+    public static double parseExpression(ProgramData data, Pattern pattern) {
+        List<String> expressionTokens = getUntil(data.getTokens(), pattern);
+
+        ExpressionParser expressionParser = new ExpressionParser(data.getVariables(), expressionTokens);
+
+        return expressionParser.parseExpression();
+    }
+
+    public static double parseExpression(ProgramData data, List<String> tokens) {
+        ExpressionParser expressionParser = new ExpressionParser(data.getVariables(), tokens);
+
+        return expressionParser.parseExpression();
     }
 
     public static List<String> getUntil(List<String> tokens, String until) {
         List<String> list = new ArrayList<>();
 
         while (!tokens.isEmpty() && !tokens.getFirst().equals(until)) {
+            list.add(tokens.removeFirst());
+        }
+
+        return list;
+    }
+
+    public static List<String> getUntil(List<String> tokens, Pattern pattern) {
+        List<String> list = new ArrayList<>();
+
+        while (!tokens.isEmpty() && !pattern.matcher(tokens.getFirst()).find()) {
+            list.add(tokens.removeFirst());
+        }
+
+        return list;
+    }
+
+    public static List<String> getUntil(List<String> tokens, Function<String, Boolean> until) {
+        List<String> list = new ArrayList<>();
+
+        while (!tokens.isEmpty() && !until.apply(tokens.getFirst())) {
             list.add(tokens.removeFirst());
         }
 
@@ -157,7 +238,7 @@ public class ProgramData {
 
 
     public static ProgramData getStandardData() {
-        return new ProgramData(getStandardKeywords(), new VariableScope());
+        return new ProgramData(getStandardKeywords(), getStandardVariables());
     }
 
     public static List<ProgramKeyword> getStandardKeywords() {
@@ -169,11 +250,22 @@ public class ProgramData {
         list.add(new SetVariableKeyword());
         list.add(new RepeatKeyword());
         list.add(new PrintKeyword());
+        list.add(new GoToKeyword());
         list.add(new SimpleKeyword("penup", data -> data.getProgram().addInstructions(new PenUpInstruction())));
         list.add(new SimpleKeyword("pendown", data -> data.getProgram().addInstructions(new PenDownInstruction())));
         list.add(new SimpleKeyword("\n", _ -> {}));
         list.add(new EndKeyword());
 
         return list;
+    }
+
+    public static VariableScope getStandardVariables() {
+        VariableScope scope = new VariableScope();
+
+        scope.add(new ProgramVariable("xPos", 0));
+        scope.add(new ProgramVariable("yPos", 0));
+        scope.add(new ProgramVariable("heading", 0));
+
+        return scope;
     }
 }

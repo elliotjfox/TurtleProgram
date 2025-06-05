@@ -24,6 +24,7 @@ public class TurtlePosition {
         return heading;
     }
 
+    // TODO: Update math for this, and reduce repetition (also included in ForwardKeyword)
     public TurtlePosition moveForward(double distance) {
         return new TurtlePosition(x + distance * Math.cos(Math.toRadians(heading)), y + distance * Math.sin(Math.toRadians(heading)), heading);
     }

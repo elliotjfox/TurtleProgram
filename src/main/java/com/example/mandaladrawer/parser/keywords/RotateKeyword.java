@@ -2,16 +2,22 @@ package com.example.mandaladrawer.parser.keywords;
 
 import com.example.mandaladrawer.instruction.RotateInstruction;
 import com.example.mandaladrawer.parser.ProgramData;
+import com.example.mandaladrawer.parser.ProgramVariable;
 
-public class RotateKeyword extends ProgramKeyword {
+import java.util.List;
+
+public class RotateKeyword extends ProgramMethod {
 
     public RotateKeyword() {
-        super("rotate");
+        super("rotate", 1);
     }
 
     @Override
-    public void parse(ProgramData data) {
-        double argument = ProgramData.parseExpression(data);
-        data.getProgram().addInstructions(new RotateInstruction(argument));
+    protected void executeMethod(ProgramData data, List<Double> arguments) {
+        data.getProgram().addInstructions(new RotateInstruction(arguments.getFirst()));
+
+        // Also update the heading variable
+        ProgramVariable heading = data.getVariables().get("heading");
+        heading.setValue(heading.getValue() + arguments.getFirst());
     }
 }
