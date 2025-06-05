@@ -7,6 +7,7 @@ import javafx.scene.layout.Region;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
 
 public class Main extends Application {
     @Override
@@ -17,7 +18,10 @@ public class Main extends Application {
         Region display = new FullBuilder(drawingManager, editorManager).build();
 
         Scene scene = new Scene(display);
-        scene.getStylesheets().add(getClass().getResource("editor.css").toExternalForm());
+        URL cssSheet = getClass().getResource("editor.css");
+        if (cssSheet != null) {
+            scene.getStylesheets().add(cssSheet.toExternalForm());
+        }
         stage.setTitle("Full");
         stage.setScene(scene);
         stage.show();
