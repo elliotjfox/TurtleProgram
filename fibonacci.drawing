@@ -1,0 +1,12 @@
+var n 50
+
+var right 1
+var left 0
+
+repeat n {
+	var temp right + left
+	set left right
+	set right temp	
+}
+
+print left

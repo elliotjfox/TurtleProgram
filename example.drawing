@@ -1,0 +1,8 @@
+forward 100
+rotate 45
+forward 150
+rotate 135
+forward 110.6
+rotate 90
+forward 100
+end

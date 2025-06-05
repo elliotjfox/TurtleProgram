@@ -1,0 +1,11 @@
+repeat 8 {
+	forward 100
+	rotate 22.5	
+	repeat 180 {
+		forward 0.66
+		rotate 1
+	}		
+	rotate 22.5
+	forward 100
+	rotate 180
+}

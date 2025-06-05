@@ -1,0 +1,31 @@
+var centerRadius 25
+
+repeat 8 {
+	penup
+	forward centerRadius
+	pendown
+	forward 100 - centerRadius
+	
+	rotate 22.5
+	repeat 180 {
+		forward 0.66
+		rotate 1
+	}
+	rotate 22.5
+	forward 100 - centerRadius
+	penup
+	forward centerRadius
+	rotate 180
+	pendown
+}
+
+penup
+forward centerRadius
+rotate 90
+pendown
+repeat 360 {
+	forward centerRadius / 57.7943250647
+	rotate 1
+}
+penup
+forward 1000

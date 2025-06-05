@@ -1,0 +1,7 @@
+var angle 60
+var length 100
+
+repeat 6 {
+	forward length
+	rotate angle
+}

@@ -1,0 +1,7 @@
+var length 1
+
+repeat 90 {
+	forward length
+	rotate 8
+	set length length + 0.125
+}
