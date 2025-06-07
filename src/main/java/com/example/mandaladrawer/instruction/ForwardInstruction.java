@@ -1,6 +1,7 @@
 package com.example.mandaladrawer.instruction;
 
 import com.example.mandaladrawer.DrawingManager;
+import com.example.mandaladrawer.TurtlePosition;
 import javafx.animation.Timeline;
 
 public class ForwardInstruction extends Instruction {
@@ -16,6 +17,8 @@ public class ForwardInstruction extends Instruction {
     @Override
     public void execute(DrawingManager manager) {
         manager.moveForward(distance);
+
+        manager.moved();
     }
 
     @Override

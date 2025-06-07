@@ -11,11 +11,11 @@ public abstract class Instruction {
 
     public abstract Timeline createTimeline(DrawingManager manager);
 
-    public boolean movesTurtle() {
-        return movesTurtle;
-    }
-
     public double getCost() {
         return 0;
+    }
+
+    public boolean movesTurtle() {
+        return movesTurtle;
     }
 }

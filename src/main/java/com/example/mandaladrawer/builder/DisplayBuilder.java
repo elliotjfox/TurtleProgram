@@ -5,12 +5,16 @@ import com.example.mandaladrawer.EditorManager;
 import com.example.mandaladrawer.Program;
 import com.example.mandaladrawer.Widgets;
 import com.example.mandaladrawer.parser.ProgramData;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Polygon;
+import javafx.scene.transform.Rotate;
 import javafx.util.Builder;
 
 public class DisplayBuilder implements Builder<Region> {
@@ -49,8 +53,10 @@ public class DisplayBuilder implements Builder<Region> {
         stackPane.setPrefWidth(manager.getWidth());
         stackPane.setAlignment(Pos.CENTER);
 
+        stackPane.setPadding(new Insets(5));
+
         stackPane.getChildren().add(createInkDisplay());
-        stackPane.getChildren().add(createTurtle());
+        stackPane.getChildren().add(createTurtleDisplay());
 
         return stackPane;
     }
@@ -58,34 +64,59 @@ public class DisplayBuilder implements Builder<Region> {
     private Node createInkDisplay() {
         Pane inkDisplay = new Pane();
         inkDisplay.setMouseTransparent(true);
-        manager.addOnDrawHandler(drawEvent -> inkDisplay.getChildren().add(
+        manager.addOnLineAddedHandler(drawEvent -> inkDisplay.getChildren().add(
                 new Line(
-                        drawEvent.getPos1().getX(),
-                        drawEvent.getPos1().getY(),
-                        drawEvent.getPos2().getX(),
-                        drawEvent.getPos2().getY()
+                        drawEvent.getPos1().getLayoutX(),
+                        drawEvent.getPos1().getLayoutY(),
+                        drawEvent.getPos2().getLayoutX(),
+                        drawEvent.getPos2().getLayoutY()
                 )
         ));
         manager.addOnClearHandler(_ -> inkDisplay.getChildren().clear());
         return inkDisplay;
     }
 
-    private Node createTurtle() {
+    private Node createTurtleDisplay() {
         Pane turtleDisplay = new Pane();
         turtleDisplay.setMouseTransparent(true);
 
-        Circle turtle = new Circle();
-        turtle.setRadius(10);
-        turtle.setFill(Color.WHITE);
-        turtle.setCenterX(manager.getWidth() / 2);
-        turtle.setCenterY(manager.getHeight() / 2);
+        Node turtle = createTurtle();
+        Rotate rotation = new Rotate();
+        rotation.setPivotX(0);
+        rotation.setPivotY(0);
+        turtle.getTransforms().add(rotation);
+
         manager.addOnMoveHandle(moveEvent -> {
-            turtle.setCenterX(moveEvent.getPosition().getX());
-            turtle.setCenterY(moveEvent.getPosition().getY());
+            turtle.setLayoutX(moveEvent.getPosition().getLayoutX());
+            turtle.setLayoutY(moveEvent.getPosition().getLayoutY());
+            rotation.setAngle(-moveEvent.getPosition().getHeading());
         });
 
         turtleDisplay.getChildren().add(turtle);
         return turtleDisplay;
+    }
+
+    private Node createTurtle() {
+        Group turtle = new Group();
+
+        Circle body = new Circle();
+        body.setRadius(5);
+        body.setFill(Color.LIGHTGREEN);
+
+        double tmp = Math.sin(Math.toRadians(60));
+        double length = 6.5;
+        Polygon head = new Polygon(
+                0, 0,
+                length * tmp, length / 2,
+                0, length
+        );
+        head.setFill(Color.LIGHTGREEN);
+        head.setLayoutX(4.5);
+        head.setLayoutY(-length / 2);
+
+        turtle.getChildren().addAll(body, head);
+
+        return turtle;
     }
 
     private Region createButtonBar() {
@@ -93,7 +124,7 @@ public class DisplayBuilder implements Builder<Region> {
 
         if (editorManager == null) {
             hBox.getChildren().add(Widgets.createButton("Finish Drawing", _ -> manager.drawInstant()));
-            hBox.getChildren().add(Widgets.createButton("Animate Drawing", _ -> manager.drawSlow()));
+            hBox.getChildren().add(Widgets.createButton("Animate Drawing", _ -> manager.drawAnimated()));
             hBox.getChildren().add(Widgets.createButton("Next Step", _ -> manager.executeNextInstruction()));
         } else {
             hBox.getChildren().add(Widgets.createButton("Draw", event -> {

@@ -15,6 +15,8 @@ public class RotateInstruction extends Instruction {
     @Override
     public void execute(DrawingManager manager) {
         manager.rotate(angle);
+
+        manager.updatePosition();
     }
 
     @Override

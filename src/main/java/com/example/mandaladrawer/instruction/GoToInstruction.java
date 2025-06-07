@@ -19,6 +19,8 @@ public class GoToInstruction extends Instruction {
     @Override
     public void execute(DrawingManager manager) {
         manager.goTo(x, y);
+
+        manager.moved();
     }
 
     @Override

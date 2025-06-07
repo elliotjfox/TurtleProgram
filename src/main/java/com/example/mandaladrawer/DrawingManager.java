@@ -16,12 +16,12 @@ public class DrawingManager {
     private final double width;
 
     private boolean penDown;
-    private TurtlePosition lastPosition;
     private TurtlePosition currentPosition;
+    private TurtlePosition previousPosition;
 
     private Program currentProgram;
 
-    private final List<EventHandler<DrawEvent>> onDraw;
+    private final List<EventHandler<DrawEvent>> onLineAdded;
     private final List<EventHandler<ActionEvent>> onClear;
     private final List<EventHandler<MoveEvent>> onMove;
 
@@ -29,17 +29,16 @@ public class DrawingManager {
         this.height = height;
         this.width = width;
 
-        this.onDraw = new ArrayList<>();
-        this.onClear = new ArrayList<>();
-        this.onMove = new ArrayList<>();
+        onLineAdded = new ArrayList<>();
+        onClear = new ArrayList<>();
+        onMove = new ArrayList<>();
 
         penDown = true;
-        lastPosition = new TurtlePosition(200, 200, 0);
-        currentPosition = new TurtlePosition(200, 200, 0);
+        currentPosition = new TurtlePosition(0, 0, 0, width, height);
     }
 
-    public void addOnDrawHandler(EventHandler<DrawEvent> handler) {
-        onDraw.add(handler);
+    public void addOnLineAddedHandler(EventHandler<DrawEvent> handler) {
+        onLineAdded.add(handler);
     }
 
     public void addOnClearHandler(EventHandler<ActionEvent> handler) {
@@ -52,25 +51,17 @@ public class DrawingManager {
 
     public void loadProgram(Program program) {
         currentProgram = program;
-        currentPosition = new TurtlePosition(width / 2, height / 2, 0);
-        moved();
+        currentPosition = new TurtlePosition(0, 0, 0, width, height);
+        updatePosition();
         clear();
     }
 
     public void drawInstant() {
-        System.out.println("Drawing " + currentProgram.getInstructionSize() + " instructions");
+        System.out.println("Starting program, " + currentProgram.getInstructionSize() + " instructions");
         while (currentProgram.hasInstructionsLeft()) {
             executeNextInstruction();
         }
         currentProgram = null;
-    }
-
-    public void drawSlow() {
-        Timeline timeline = new Timeline(
-                new KeyFrame(Duration.millis(100), actionEvent -> executeNextInstruction())
-        );
-        timeline.setCycleCount(currentProgram.getInstructionSize());
-        timeline.play();
     }
 
     public void executeNextInstruction() {
@@ -80,22 +71,41 @@ public class DrawingManager {
         }
 
         Instruction currentInstruction = currentProgram.getNextInstruction();
+
         currentInstruction.execute(this);
-        if (currentInstruction.movesTurtle()) {
-            moved();
-        }
     }
 
+    public void drawAnimated() {
+
+    }
+
+//    public void animateNextInstruction() {
+//        if (!currentProgram.hasInstructionsLeft()) {
+//            currentProgram = null;
+//            return;
+//        }
+//
+//        Instruction currentInstruction = currentProgram.getNextInstruction();
+//
+//        Timeline instructionTimeline = currentInstruction.createTimeline(this);
+//
+//
+//        instructionTimeline.setOnFinished(_ -> animateNextInstruction());
+//    }
+
     public void moveForward(double distance) {
+        previousPosition = currentPosition;
         currentPosition = currentPosition.moveForward(distance);
     }
 
     public void rotate(double angle) {
+        previousPosition = currentPosition;
         currentPosition = currentPosition.rotate(angle);
     }
 
     public void goTo(double x, double y) {
-        currentPosition = new TurtlePosition(x, y, currentPosition.getHeading());
+        previousPosition = currentPosition;
+        currentPosition = new TurtlePosition(x, y, currentPosition.getHeading(), width, height);
     }
 
     public void raisePen() {
@@ -106,22 +116,24 @@ public class DrawingManager {
         penDown = true;
     }
 
-    private void moved() {
+    public void moved() {
+        updatePosition();
+
         if (penDown) {
-            placeLine(lastPosition, currentPosition);
+            placeLine(previousPosition, currentPosition);
         }
+    }
 
-        lastPosition = currentPosition;
-
+    public void updatePosition() {
         MoveEvent event = new MoveEvent(currentPosition);
         for (EventHandler<MoveEvent> eventHandler : onMove) {
             eventHandler.handle(event);
         }
     }
 
-    private void placeLine(TurtlePosition pos1, TurtlePosition pos2) {
+    public void placeLine(TurtlePosition pos1, TurtlePosition pos2) {
         DrawEvent event = new DrawEvent(pos1, pos2);
-        for (EventHandler<DrawEvent> eventHandler : onDraw) {
+        for (EventHandler<DrawEvent> eventHandler : onLineAdded) {
             eventHandler.handle(event);
         }
     }
@@ -139,6 +151,14 @@ public class DrawingManager {
 
     public boolean programmed() {
         return currentProgram != null;
+    }
+
+    public boolean isPenDown() {
+        return penDown;
+    }
+
+    public TurtlePosition getPosition() {
+        return currentPosition;
     }
 
     public double getHeight() {
