@@ -89,6 +89,26 @@ public class Program {
             }
             """;
 
+    public static String CONCENTRIC_POLYGONS = """
+            var length 100
+            var sides 3
+            
+            penup
+            goto length / -2 | -175
+            pendown
+            
+            repeat 10 {
+            	var angle 360 / sides
+            
+            	repeat sides {
+            		forward length
+            		rotate angle
+            	}
+            
+            	set sides sides + 1
+            }
+            """;
+
     private final List<Instruction> instructions;
     private final Map<String, ProgramVariable> variableMap;
 

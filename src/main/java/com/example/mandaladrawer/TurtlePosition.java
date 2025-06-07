@@ -58,6 +58,10 @@ public class TurtlePosition {
         return new TurtlePosition(x, y, heading + angle, width, height);
     }
 
+    public TurtlePosition copy() {
+        return new TurtlePosition(x, y, heading, width, height);
+    }
+
     public DoubleProperty xProperty() {
         return xPosition;
     }

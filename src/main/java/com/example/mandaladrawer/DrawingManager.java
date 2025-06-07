@@ -1,11 +1,9 @@
 package com.example.mandaladrawer;
 
 import com.example.mandaladrawer.instruction.Instruction;
-import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.util.Duration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +22,8 @@ public class DrawingManager {
     private final List<EventHandler<DrawEvent>> onLineAdded;
     private final List<EventHandler<ActionEvent>> onClear;
     private final List<EventHandler<MoveEvent>> onMove;
+    private final List<EventHandler<BeginMoveAnimationEvent>> onBeginAnimation;
+    private final List<EventHandler<MoveEvent>> onEndAnimation;
 
     public DrawingManager(double height, double width) {
         this.height = height;
@@ -32,6 +32,8 @@ public class DrawingManager {
         onLineAdded = new ArrayList<>();
         onClear = new ArrayList<>();
         onMove = new ArrayList<>();
+        onBeginAnimation = new ArrayList<>();
+        onEndAnimation = new ArrayList<>();
 
         penDown = true;
         currentPosition = new TurtlePosition(0, 0, 0, width, height);
@@ -47,6 +49,14 @@ public class DrawingManager {
 
     public void addOnMoveHandle(EventHandler<MoveEvent> handler) {
         onMove.add(handler);
+    }
+
+    public void addOnBeginAnimation(EventHandler<BeginMoveAnimationEvent> handler) {
+        onBeginAnimation.add(handler);
+    }
+
+    public void addOnEndAnimation(EventHandler<MoveEvent> handler) {
+        onEndAnimation.add(handler);
     }
 
     public void loadProgram(Program program) {
@@ -76,22 +86,35 @@ public class DrawingManager {
     }
 
     public void drawAnimated() {
-
+        animateNextInstruction();
     }
 
-//    public void animateNextInstruction() {
-//        if (!currentProgram.hasInstructionsLeft()) {
-//            currentProgram = null;
-//            return;
-//        }
-//
-//        Instruction currentInstruction = currentProgram.getNextInstruction();
-//
-//        Timeline instructionTimeline = currentInstruction.createTimeline(this);
-//
-//
-//        instructionTimeline.setOnFinished(_ -> animateNextInstruction());
-//    }
+    public void animateNextInstruction() {
+        if (!currentProgram.hasInstructionsLeft()) {
+            currentProgram = null;
+            return;
+        }
+
+        Instruction currentInstruction = currentProgram.getNextInstruction();
+        previousPosition = currentPosition;
+        currentPosition = currentPosition.copy();
+
+        Timeline instructionTimeline = currentInstruction.createTimeline(this);
+        instructionTimeline.setOnFinished(_ -> {
+            MoveEvent event = new MoveEvent(currentPosition);
+            for (EventHandler<MoveEvent> handler : onEndAnimation) {
+                handler.handle(event);
+            }
+            animateNextInstruction();
+        });
+
+        BeginMoveAnimationEvent event = new BeginMoveAnimationEvent(previousPosition, currentPosition);
+        for (EventHandler<BeginMoveAnimationEvent> handler : onBeginAnimation) {
+            handler.handle(event);
+        }
+
+        instructionTimeline.play();
+    }
 
     public void moveForward(double distance) {
         previousPosition = currentPosition;

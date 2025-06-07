@@ -63,11 +63,12 @@ public class EditorBuilder implements Builder<Region> {
         examples.setText("Load Example");
 
         examples.getItems().add(Widgets.createMenuItem("Square", _ -> manager.loadExample(Program.SQUARE_EXAMPLE)));
+        examples.getItems().add(Widgets.createMenuItem("Dashed Square", _ -> manager.loadExample(Program.DASHED_SQUARE_EXAMPLE)));
         examples.getItems().add(Widgets.createMenuItem("Hexagon", _ -> manager.loadExample(Program.HEXAGON_EXAMPLE)));
         examples.getItems().add(Widgets.createMenuItem("Flower", _ -> manager.loadExample(Program.FLOWER_EXAMPLE)));
         examples.getItems().add(Widgets.createMenuItem("Spiral", _ -> manager.loadExample(Program.SPIRAL_EXAMPLE)));
         examples.getItems().add(Widgets.createMenuItem("Polygon", _ -> manager.loadExample(Program.POLYGON_EXAMPLE)));
-        examples.getItems().add(Widgets.createMenuItem("Dashed Square", _ -> manager.loadExample(Program.DASHED_SQUARE_EXAMPLE)));
+        examples.getItems().add(Widgets.createMenuItem("Concentric Polygons", _ -> manager.loadExample(Program.CONCENTRIC_POLYGONS)));
 
         return examples;
     }
