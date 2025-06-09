@@ -75,11 +75,12 @@ public class DisplayBuilder implements Builder<Region> {
         ));
 
         manager.addOnBeginAnimation(animationEvent -> {
+            if (!animationEvent.isPenDown()) return;
             Line line = new Line();
-            line.setStartX(animationEvent.getPreviousPosition().getX());
-            line.setStartY(animationEvent.getPreviousPosition().getY());
-            line.endXProperty().bind(animationEvent.getPosition().xProperty());
-            line.endYProperty().bind(animationEvent.getPosition().yProperty());
+            line.setStartX(animationEvent.getPreviousPosition().getLayoutX());
+            line.setStartY(animationEvent.getPreviousPosition().getLayoutY());
+            line.endXProperty().bind(animationEvent.getPosition().layoutXProperty());
+            line.endYProperty().bind(animationEvent.getPosition().layoutYProperty());
             inkDisplay.getChildren().add(line);
         });
 
@@ -105,9 +106,9 @@ public class DisplayBuilder implements Builder<Region> {
         });
 
         manager.addOnBeginAnimation(animationEvent -> {
-            turtle.layoutXProperty().bind(animationEvent.getPosition().xProperty());
-            turtle.layoutYProperty().bind(animationEvent.getPosition().yProperty());
-            rotation.angleProperty().bind(animationEvent.getPosition().headingProperty());
+            turtle.layoutXProperty().bind(animationEvent.getPosition().layoutXProperty());
+            turtle.layoutYProperty().bind(animationEvent.getPosition().layoutYProperty());
+            rotation.angleProperty().bind(animationEvent.getPosition().headingProperty().multiply(-1));
         });
 
         manager.addOnEndAnimation(moveEvent -> {
@@ -115,9 +116,9 @@ public class DisplayBuilder implements Builder<Region> {
             turtle.layoutYProperty().unbind();
             rotation.angleProperty().unbind();
 
-//            turtle.setLayoutX(moveEvent.getPosition().getLayoutX());
-//            turtle.setLayoutY(moveEvent.getPosition().getLayoutY());
-//            rotation.setAngle(-moveEvent.getPosition().getHeading());
+            turtle.setLayoutX(moveEvent.getPosition().getLayoutX());
+            turtle.setLayoutY(moveEvent.getPosition().getLayoutY());
+            rotation.setAngle(-moveEvent.getPosition().getHeading());
         });
 
         turtleDisplay.getChildren().add(turtle);

@@ -1,8 +1,15 @@
 package com.example.mandaladrawer.instruction;
 
 import com.example.mandaladrawer.DrawingManager;
+import com.example.mandaladrawer.TurtlePosition;
 import com.example.mandaladrawer.parser.keywords.GoToKeyword;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
+import javafx.util.Duration;
 
 public class GoToInstruction extends Instruction {
 
@@ -25,6 +32,33 @@ public class GoToInstruction extends Instruction {
 
     @Override
     public Timeline createTimeline(DrawingManager manager) {
-        return null;
+        TurtlePosition position = manager.getPosition();
+
+        // In cartesian
+        double initialX = position.getX();
+        double initialY = position.getY();
+
+        double distance = Math.sqrt(Math.pow(x - initialX, 2) + Math.pow(y - initialY, 2));
+
+        DoubleProperty xProgress = new SimpleDoubleProperty();
+        DoubleProperty yProgress = new SimpleDoubleProperty();
+
+        position.xProperty().bind(Bindings.createDoubleBinding(
+                () -> initialX + xProgress.get(),
+                xProgress
+        ));
+
+        position.yProperty().bind(Bindings.createDoubleBinding(
+                () -> initialY + yProgress.get(),
+                yProgress
+        ));
+
+        return new Timeline(
+                new KeyFrame(
+                        Duration.millis(distance * 10),
+                        new KeyValue(xProgress, x - initialX),
+                        new KeyValue(yProgress, y - initialY)
+                )
+        );
     }
 }

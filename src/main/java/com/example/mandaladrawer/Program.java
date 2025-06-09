@@ -73,20 +73,19 @@ public class Program {
 
     public static String DASHED_SQUARE_EXAMPLE = """
             penup
-            forward -100
-            rotate 90
-            forward -100
+            goto -100 | -100
             pendown
             
             repeat 4 {
-            	repeat 10 {
-            		forward 10
-            		penup
-            		forward 10
-            		pendown
-            	}
-            	rotate -90
+            repeat 10 {
+                forward 10
+                penup
+                forward 10
+                pendown
             }
+            rotate 90
+            }
+
             """;
 
     public static String CONCENTRIC_POLYGONS = """

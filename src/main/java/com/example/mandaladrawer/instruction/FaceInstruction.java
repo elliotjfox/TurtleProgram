@@ -10,18 +10,17 @@ import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.util.Duration;
 
-public class RotateInstruction extends Instruction {
+public class FaceInstruction extends Instruction {
 
-    private final double angle;
+    private final double heading;
 
-    public RotateInstruction(double angle) {
-        this.angle = angle;
-        movesTurtle = true;
+    public FaceInstruction(double heading) {
+        this.heading = heading;
     }
 
     @Override
     public void execute(DrawingManager manager) {
-        manager.rotate(angle);
+        manager.face(heading);
 
         manager.updatePosition();
     }
@@ -40,14 +39,9 @@ public class RotateInstruction extends Instruction {
 
         return new Timeline(
                 new KeyFrame(
-                        Duration.millis(Math.abs(angle) * 10),
-                        new KeyValue(progress, angle)
+                        Duration.millis(Math.abs(heading - initialHeading) * 10),
+                        new KeyValue(progress, heading - initialHeading)
                 )
         );
-    }
-
-    @Override
-    public double getCost() {
-        return angle;
     }
 }

@@ -251,6 +251,7 @@ public class ProgramData {
         list.add(new RepeatKeyword());
         list.add(new PrintKeyword());
         list.add(new GoToKeyword());
+        list.add(new FaceKeyword());
         list.add(new SimpleKeyword("penup", data -> data.getProgram().addInstructions(new PenUpInstruction())));
         list.add(new SimpleKeyword("pendown", data -> data.getProgram().addInstructions(new PenDownInstruction())));
         list.add(new SimpleKeyword("\n", _ -> {}));

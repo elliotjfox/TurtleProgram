@@ -34,22 +34,22 @@ public class ForwardInstruction extends Instruction {
         double initialY = position.getY();
         double heading = position.getHeading();
 
-        DoubleProperty time = new SimpleDoubleProperty();
+        DoubleProperty progress = new SimpleDoubleProperty();
 
         position.xProperty().bind(Bindings.createDoubleBinding(
-                () -> initialX + time.get() * Math.cos(Math.toRadians(heading)),
-                time
+                () -> initialX + progress.get() * Math.cos(Math.toRadians(heading)),
+                progress
         ));
 
         position.yProperty().bind(Bindings.createDoubleBinding(
-                () -> initialY + time.get() * Math.sin(Math.toRadians(heading)),
-                time
+                () -> initialY + progress.get() * Math.sin(Math.toRadians(heading)),
+                progress
         ));
 
         return new Timeline(
                 new KeyFrame(
                         Duration.millis(Math.abs(distance * 10)),
-                        new KeyValue(time, distance)
+                        new KeyValue(progress, distance)
                 )
         );
     }

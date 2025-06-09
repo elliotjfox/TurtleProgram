@@ -100,20 +100,27 @@ public class DrawingManager {
         currentPosition = currentPosition.copy();
 
         Timeline instructionTimeline = currentInstruction.createTimeline(this);
-        instructionTimeline.setOnFinished(_ -> {
-            MoveEvent event = new MoveEvent(currentPosition);
-            for (EventHandler<MoveEvent> handler : onEndAnimation) {
+
+        if (instructionTimeline == null) {
+            currentInstruction.execute(this);
+            animateNextInstruction();
+        } else {
+            instructionTimeline.setOnFinished(_ -> {
+                MoveEvent event = new MoveEvent(currentPosition);
+                for (EventHandler<MoveEvent> handler : onEndAnimation) {
+                    handler.handle(event);
+                }
+                animateNextInstruction();
+            });
+
+            BeginMoveAnimationEvent event = new BeginMoveAnimationEvent(previousPosition, currentPosition, penDown);
+            for (EventHandler<BeginMoveAnimationEvent> handler : onBeginAnimation) {
                 handler.handle(event);
             }
-            animateNextInstruction();
-        });
 
-        BeginMoveAnimationEvent event = new BeginMoveAnimationEvent(previousPosition, currentPosition);
-        for (EventHandler<BeginMoveAnimationEvent> handler : onBeginAnimation) {
-            handler.handle(event);
+            instructionTimeline.play();
         }
 
-        instructionTimeline.play();
     }
 
     public void moveForward(double distance) {
@@ -129,6 +136,11 @@ public class DrawingManager {
     public void goTo(double x, double y) {
         previousPosition = currentPosition;
         currentPosition = new TurtlePosition(x, y, currentPosition.getHeading(), width, height);
+    }
+
+    public void face(double heading) {
+        previousPosition = currentPosition;
+        currentPosition = new TurtlePosition(currentPosition.getX(), currentPosition.getY(), heading, width, height);
     }
 
     public void raisePen() {
