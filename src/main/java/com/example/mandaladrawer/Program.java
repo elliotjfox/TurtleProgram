@@ -108,6 +108,43 @@ public class Program {
             }
             """;
 
+    public static String GRID_EXAMPLE = """
+            var xDist 10
+            var yDist 10
+            var xCount 10
+            var yCount 10
+            
+            var minX xCount * xDist / -2
+            var maxX xCount * xDist / 2
+            var minY yCount * yDist / -2
+            var maxY yCount * yDist / 2
+            
+            var currentX minX
+            var currentY minY
+            
+            print minX
+            
+            penup
+            goto currentX | currentY
+            pendown
+            
+            repeat xCount + 1 {
+            	goto currentX | minY
+            	goto currentX | maxY
+            	goto currentX | minY
+            	set currentX currentX + xDist
+            }
+            
+            goto minX | minY
+            
+            repeat yCount + 1 {
+            	goto minX | currentY
+            	goto maxX | currentY
+            	goto minX | currentY
+            	set currentY currentY + yDist
+            }
+            """;
+
     private final List<Instruction> instructions;
     private final Map<String, ProgramVariable> variableMap;
 
