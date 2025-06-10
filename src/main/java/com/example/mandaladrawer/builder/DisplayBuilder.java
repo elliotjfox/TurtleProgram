@@ -5,6 +5,7 @@ import com.example.mandaladrawer.EditorManager;
 import com.example.mandaladrawer.Program;
 import com.example.mandaladrawer.Widgets;
 import com.example.mandaladrawer.parser.ProgramData;
+import javafx.animation.Timeline;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -150,13 +151,14 @@ public class DisplayBuilder implements Builder<Region> {
 
     private Region createButtonBar() {
         HBox hBox = new HBox();
+        hBox.setAlignment(Pos.CENTER);
 
         if (editorManager == null) {
             hBox.getChildren().add(Widgets.createButton("Finish Drawing", _ -> manager.drawInstant()));
             hBox.getChildren().add(Widgets.createButton("Animate Drawing", _ -> manager.drawAnimated()));
             hBox.getChildren().add(Widgets.createButton("Next Step", _ -> manager.executeNextInstruction()));
         } else {
-            hBox.getChildren().add(Widgets.createButton("Draw", event -> {
+            hBox.getChildren().add(Widgets.createButton(Widgets.createSkipIcon(10), event -> {
                 Program p = ProgramData.getStandardData().buildProgram(editorManager.textProperty().get());
                 if (p == null) {
                     System.out.println("Null program");
@@ -165,14 +167,7 @@ public class DisplayBuilder implements Builder<Region> {
                     manager.drawInstant();
                 }
             }));
-            hBox.getChildren().add(Widgets.createButton("Step", event -> {
-                if (!manager.programmed()) {
-                    Program p = ProgramData.getStandardData().buildProgram(editorManager.textProperty().get());
-                    manager.loadProgram(p);
-                }
-                manager.executeNextInstruction();
-            }));
-            hBox.getChildren().add(Widgets.createButton("Animate", event -> {
+            hBox.getChildren().add(Widgets.createButton(Widgets.createPlayIcon(10), event -> {
                 if (!manager.programmed()) {
                     Program p = ProgramData.getStandardData().buildProgram(editorManager.textProperty().get());
                     manager.loadProgram(p);

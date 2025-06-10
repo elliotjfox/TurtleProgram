@@ -1,18 +1,14 @@
 package com.example.mandaladrawer.builder;
 
 import com.example.mandaladrawer.EditorManager;
-import com.example.mandaladrawer.Program;
-import com.example.mandaladrawer.Widgets;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuBar;
-import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.util.Builder;
 import org.fxmisc.richtext.StyleClassedTextArea;
 
@@ -29,64 +25,13 @@ public class EditorBuilder implements Builder<Region> {
 
     @Override
     public Region build() {
-        BorderPane borderPane = new BorderPane();
-
-        borderPane.setTop(createMenu());
+        StackPane stackPane = new StackPane();
 
         Node textEntry = createTextEntry();
-        BorderPane.setMargin(textEntry, new Insets(4, 2, 2, 4));
-        borderPane.setCenter(textEntry);
+        stackPane.setPadding(new Insets(4, 2, 2, 4));
+        stackPane.getChildren().add(textEntry);
 
-        return borderPane;
-    }
-
-    private Node createMenu() {
-        MenuBar menuBar = new MenuBar();
-
-        menuBar.getMenus().add(createFileMenu());
-        menuBar.getMenus().add(createDebugMenu());
-
-        return menuBar;
-    }
-
-    private Menu createFileMenu() {
-        Menu fileMenu = new Menu();
-        fileMenu.setText("File");
-
-        fileMenu.getItems().add(Widgets.createMenuItem("Save", _ -> manager.save()));
-        fileMenu.getItems().add(Widgets.createMenuItem("Save As", _ -> manager.saveAs()));
-        fileMenu.getItems().add(Widgets.createMenuItem("Open File", _ -> manager.openFile()));
-
-        fileMenu.getItems().add(new SeparatorMenuItem());
-
-        fileMenu.getItems().add(createExamplesMenu());
-
-        return fileMenu;
-    }
-
-    private Menu createExamplesMenu() {
-        Menu examples = new Menu();
-        examples.setText("Load Example");
-
-        examples.getItems().add(Widgets.createMenuItem("Square", _ -> manager.loadExample(Program.SQUARE_EXAMPLE)));
-        examples.getItems().add(Widgets.createMenuItem("Dashed Square", _ -> manager.loadExample(Program.DASHED_SQUARE_EXAMPLE)));
-        examples.getItems().add(Widgets.createMenuItem("Hexagon", _ -> manager.loadExample(Program.HEXAGON_EXAMPLE)));
-        examples.getItems().add(Widgets.createMenuItem("Flower", _ -> manager.loadExample(Program.FLOWER_EXAMPLE)));
-        examples.getItems().add(Widgets.createMenuItem("Spiral", _ -> manager.loadExample(Program.SPIRAL_EXAMPLE)));
-        examples.getItems().add(Widgets.createMenuItem("Polygon", _ -> manager.loadExample(Program.POLYGON_EXAMPLE)));
-        examples.getItems().add(Widgets.createMenuItem("Concentric Polygons", _ -> manager.loadExample(Program.CONCENTRIC_POLYGONS)));
-        examples.getItems().add(Widgets.createMenuItem("Grid", _ -> manager.loadExample(Program.GRID_EXAMPLE)));
-
-        return examples;
-    }
-
-    private Menu createDebugMenu() {
-        Menu debug = new Menu();
-        debug.setText("Debug");
-
-//        debug.getItems().add(Widgets.createMenuItem("Style", ))
-
-        return debug;
+        return stackPane;
     }
 
     private Node createTextEntry() {
@@ -128,6 +73,7 @@ public class EditorBuilder implements Builder<Region> {
                     });
                 }
             } else if (KE.isShiftDown() && KE.getCode() == KeyCode.OPEN_BRACKET) {
+                // If '{' was pressed, add a '}' to the other side
                 int caretPosition = textArea.getCaretPosition();
 
                 Platform.runLater(() -> {

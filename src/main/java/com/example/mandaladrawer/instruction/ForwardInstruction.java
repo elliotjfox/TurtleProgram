@@ -1,6 +1,7 @@
 package com.example.mandaladrawer.instruction;
 
 import com.example.mandaladrawer.DrawingManager;
+import com.example.mandaladrawer.SettingsManager;
 import com.example.mandaladrawer.TurtlePosition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -48,7 +49,9 @@ public class ForwardInstruction extends Instruction {
 
         return new Timeline(
                 new KeyFrame(
-                        Duration.millis(Math.abs(distance * 10)),
+                        Duration.millis(
+                                Math.abs(distance) * SettingsManager.MOVEMENT_ANIMATION_COEFFICIENT * Math.pow(2, -SettingsManager.animationSpeed.getValue()) * Math.pow(2, -SettingsManager.movementAnimationSpeed.getValue())
+                        ),
                         new KeyValue(progress, distance)
                 )
         );

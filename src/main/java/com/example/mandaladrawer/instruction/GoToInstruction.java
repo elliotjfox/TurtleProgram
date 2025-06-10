@@ -1,8 +1,8 @@
 package com.example.mandaladrawer.instruction;
 
 import com.example.mandaladrawer.DrawingManager;
+import com.example.mandaladrawer.SettingsManager;
 import com.example.mandaladrawer.TurtlePosition;
-import com.example.mandaladrawer.parser.keywords.GoToKeyword;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -55,7 +55,9 @@ public class GoToInstruction extends Instruction {
 
         return new Timeline(
                 new KeyFrame(
-                        Duration.millis(distance * 10),
+                        Duration.millis(
+                                distance * SettingsManager.MOVEMENT_ANIMATION_COEFFICIENT * Math.pow(2, -SettingsManager.animationSpeed.getValue()) * Math.pow(2, -SettingsManager.movementAnimationSpeed.getValue())
+                        ),
                         new KeyValue(xProgress, x - initialX),
                         new KeyValue(yProgress, y - initialY)
                 )

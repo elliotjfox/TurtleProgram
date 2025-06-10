@@ -77,15 +77,14 @@ public class Program {
             pendown
             
             repeat 4 {
-            repeat 10 {
-                forward 10
-                penup
-                forward 10
-                pendown
+            	repeat 10 {
+            		forward 10
+            		penup
+            		forward 10
+            		pendown
+            	}
+            	rotate 90
             }
-            rotate 90
-            }
-
             """;
 
     public static String CONCENTRIC_POLYGONS = """

@@ -27,7 +27,7 @@ public class EditorManager {
     private Stage stage;
 
     public EditorManager() {
-        textProperty = new SimpleStringProperty();
+        textProperty = new SimpleStringProperty("");
         onLoad = new ArrayList<>();
 
         saved = true;
