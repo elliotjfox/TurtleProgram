@@ -1,8 +1,7 @@
-package com.example.mandaladrawer;
+package com.example.mandaladrawer.event;
 
+import com.example.mandaladrawer.TurtlePosition;
 import javafx.event.ActionEvent;
-
-import javax.swing.*;
 
 public class MoveEvent extends ActionEvent {
 

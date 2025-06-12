@@ -1,5 +1,6 @@
 package com.example.mandaladrawer;
 
+import com.example.mandaladrawer.event.TextLoadedEvent;
 import com.example.mandaladrawer.parser.ProgramData;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;

@@ -1,9 +1,7 @@
 package com.example.mandaladrawer.instruction;
 
+import com.example.mandaladrawer.Animation;
 import com.example.mandaladrawer.DrawingManager;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
-import javafx.util.Duration;
 
 public class PrintInstruction extends Instruction {
 
@@ -19,12 +17,7 @@ public class PrintInstruction extends Instruction {
     }
 
     @Override
-    public Timeline createTimeline(DrawingManager manager) {
-        return new Timeline(
-                new KeyFrame(
-                        Duration.ZERO,
-                        _ -> System.out.println(message)
-                )
-        );
+    public Animation createAnimation(DrawingManager manager) {
+        return null;
     }
 }

@@ -1,5 +1,6 @@
-package com.example.mandaladrawer;
+package com.example.mandaladrawer.event;
 
+import com.example.mandaladrawer.TurtlePosition;
 import javafx.event.ActionEvent;
 
 public class BeginMoveAnimationEvent extends ActionEvent {

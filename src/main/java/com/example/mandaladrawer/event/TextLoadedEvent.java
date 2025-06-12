@@ -1,4 +1,4 @@
-package com.example.mandaladrawer;
+package com.example.mandaladrawer.event;
 
 import javafx.event.ActionEvent;
 

@@ -159,12 +159,16 @@ public class DisplayBuilder implements Builder<Region> {
             hBox.getChildren().add(Widgets.createButton("Next Step", _ -> manager.executeNextInstruction()));
         } else {
             hBox.getChildren().add(Widgets.createButton(Widgets.createSkipIcon(10), event -> {
-                Program p = ProgramData.getStandardData().buildProgram(editorManager.textProperty().get());
-                if (p == null) {
-                    System.out.println("Null program");
-                } else {
-                    manager.loadProgram(p);
+                if (manager.programmed()) {
                     manager.drawInstant();
+                } else {
+                    Program p = ProgramData.getStandardData().buildProgram(editorManager.textProperty().get());
+                    if (p == null) {
+                        System.out.println("Null program");
+                    } else {
+                        manager.loadProgram(p);
+                        manager.drawInstant();
+                    }
                 }
             }));
             hBox.getChildren().add(Widgets.createButton(Widgets.createPlayIcon(10), event -> {

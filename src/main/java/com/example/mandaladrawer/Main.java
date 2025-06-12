@@ -12,8 +12,6 @@ import java.net.URL;
 
 public class Main extends Application {
 
-    private static Scene scene;
-
     @Override
     public void start(Stage stage) throws IOException {
         DrawingManager drawingManager = new DrawingManager(400, 400);
@@ -21,12 +19,12 @@ public class Main extends Application {
         editorManager.setStage(stage);
         Region display = new FullBuilder(drawingManager, editorManager).build();
 
-        scene = new Scene(display);
-        URL cssSheet = getClass().getResource("darkmode.css");
-        if (cssSheet != null) {
-            scene.getStylesheets().add(cssSheet.toExternalForm());
-            System.out.println("Stylesheet loaded");
-        }
+        Scene scene = new Scene(display);
+//        URL cssSheet = getClass().getResource("darkmode.css");
+//        if (cssSheet != null) {
+//            scene.getStylesheets().add(cssSheet.toExternalForm());
+//            System.out.println("Stylesheet loaded");
+//        }
 
         stage.setTitle("Turtle Program");
         stage.setScene(scene);

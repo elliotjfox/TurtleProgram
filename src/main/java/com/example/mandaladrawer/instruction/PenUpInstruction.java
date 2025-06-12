@@ -1,7 +1,7 @@
 package com.example.mandaladrawer.instruction;
 
+import com.example.mandaladrawer.Animation;
 import com.example.mandaladrawer.DrawingManager;
-import javafx.animation.Timeline;
 
 public class PenUpInstruction extends Instruction {
 
@@ -11,7 +11,7 @@ public class PenUpInstruction extends Instruction {
     }
 
     @Override
-    public Timeline createTimeline(DrawingManager manager) {
+    public Animation createAnimation(DrawingManager manager) {
         return null;
     }
 }

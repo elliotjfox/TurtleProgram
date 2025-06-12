@@ -1,7 +1,9 @@
 package com.example.mandaladrawer;
 
+import com.example.mandaladrawer.event.BeginMoveAnimationEvent;
+import com.example.mandaladrawer.event.EndAnimationEvent;
+import com.example.mandaladrawer.event.MoveEvent;
 import com.example.mandaladrawer.instruction.Instruction;
-import javafx.animation.Timeline;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 
@@ -23,7 +25,9 @@ public class DrawingManager {
     private final List<EventHandler<ActionEvent>> onClear;
     private final List<EventHandler<MoveEvent>> onMove;
     private final List<EventHandler<BeginMoveAnimationEvent>> onBeginAnimation;
-    private final List<EventHandler<MoveEvent>> onEndAnimation;
+    private final List<EventHandler<EndAnimationEvent>> onEndAnimation;
+
+    private Animation currentAnimation;
 
     public DrawingManager(double height, double width) {
         this.height = height;
@@ -55,7 +59,7 @@ public class DrawingManager {
         onBeginAnimation.add(handler);
     }
 
-    public void addOnEndAnimation(EventHandler<MoveEvent> handler) {
+    public void addOnEndAnimation(EventHandler<EndAnimationEvent> handler) {
         onEndAnimation.add(handler);
     }
 
@@ -64,10 +68,11 @@ public class DrawingManager {
         currentPosition = new TurtlePosition(0, 0, 0, width, height);
         updatePosition();
         clear();
+
+        System.out.println("Program loaded - " + program.getInstructionSize() + " instructions");
     }
 
     public void drawInstant() {
-        System.out.println("Starting program, " + currentProgram.getInstructionSize() + " instructions");
         while (currentProgram.hasInstructionsLeft()) {
             executeNextInstruction();
         }
@@ -78,6 +83,10 @@ public class DrawingManager {
         if (!currentProgram.hasInstructionsLeft()) {
             currentProgram = null;
             return;
+        }
+
+        if (isAnimationRunning()) {
+            forceQuitAnimation();
         }
 
         Instruction currentInstruction = currentProgram.getNextInstruction();
@@ -95,22 +104,31 @@ public class DrawingManager {
             return;
         }
 
+        if (isAnimationRunning()) {
+            System.out.println("Timeline already running!");
+            return;
+        }
+
         Instruction currentInstruction = currentProgram.getNextInstruction();
         previousPosition = currentPosition;
         currentPosition = currentPosition.copy();
 
-        Timeline instructionTimeline = currentInstruction.createTimeline(this);
+        Animation animation = currentInstruction.createAnimation(this);
 
-        if (instructionTimeline == null) {
+        if (animation == null) {
             currentInstruction.execute(this);
             animateNextInstruction();
         } else {
-            instructionTimeline.setOnFinished(_ -> {
-                MoveEvent event = new MoveEvent(currentPosition);
-                for (EventHandler<MoveEvent> handler : onEndAnimation) {
-                    handler.handle(event);
+            animation.onFinished(this, endAnimationEvent -> {
+                for (EventHandler<EndAnimationEvent> handler : onEndAnimation) {
+                    handler.handle(endAnimationEvent);
                 }
-                animateNextInstruction();
+
+                currentAnimation = null;
+
+                if (!endAnimationEvent.isInterrupted()) {
+                    animateNextInstruction();
+                }
             });
 
             BeginMoveAnimationEvent event = new BeginMoveAnimationEvent(previousPosition, currentPosition, penDown);
@@ -118,9 +136,20 @@ public class DrawingManager {
                 handler.handle(event);
             }
 
-            instructionTimeline.play();
+            currentAnimation = animation;
+            animation.play();
+        }
+    }
+
+    private void forceQuitAnimation() {
+        if (!isAnimationRunning()) {
+            System.out.println("No animation to quit");
+            return;
         }
 
+        Animation animation = currentAnimation;
+        currentAnimation = null;
+        animation.finish(currentPosition);
     }
 
     public void moveForward(double distance) {
@@ -186,6 +215,10 @@ public class DrawingManager {
 
     public boolean programmed() {
         return currentProgram != null;
+    }
+
+    public boolean isAnimationRunning() {
+        return currentAnimation != null;
     }
 
     public boolean isPenDown() {

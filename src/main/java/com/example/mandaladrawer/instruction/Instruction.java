@@ -1,7 +1,7 @@
 package com.example.mandaladrawer.instruction;
 
+import com.example.mandaladrawer.Animation;
 import com.example.mandaladrawer.DrawingManager;
-import javafx.animation.Timeline;
 
 public abstract class Instruction {
 
@@ -9,7 +9,7 @@ public abstract class Instruction {
 
     public abstract void execute(DrawingManager manager);
 
-    public abstract Timeline createTimeline(DrawingManager manager);
+    public abstract Animation createAnimation(DrawingManager manager);
 
     public double getCost() {
         return 0;

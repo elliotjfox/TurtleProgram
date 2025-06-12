@@ -14,4 +14,6 @@ module com.example.mandaladrawer {
     exports com.example.mandaladrawer.parser.keywords;
     exports com.example.mandaladrawer.builder;
     opens com.example.mandaladrawer.builder to javafx.fxml;
+    exports com.example.mandaladrawer.event;
+    opens com.example.mandaladrawer.event to javafx.fxml;
 }
