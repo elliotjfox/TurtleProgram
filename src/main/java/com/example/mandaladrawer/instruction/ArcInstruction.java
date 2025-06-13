@@ -2,46 +2,86 @@ package com.example.mandaladrawer.instruction;
 
 import com.example.mandaladrawer.Animation;
 import com.example.mandaladrawer.DrawingManager;
+import com.example.mandaladrawer.SettingsManager;
 import com.example.mandaladrawer.TurtlePosition;
-import javafx.scene.paint.Color;
-import javafx.scene.shape.Arc;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.DoubleProperty;
+import javafx.beans.property.SimpleDoubleProperty;
 import javafx.scene.shape.ArcTo;
-import javafx.scene.shape.ArcType;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 
 public class ArcInstruction extends Instruction {
 
-    private final TurtlePosition centerPosition;
+    private final double forwardDistance;
     private final double radius;
-    private final double initialHeading;
-    private final double arcLength;
+    private final boolean largeArc;
+    private final boolean sweep;
 
-
-    public ArcInstruction(TurtlePosition centerPosition, double radius, double initialHeading, double arcLength) {
-        this.centerPosition = centerPosition;
+    public ArcInstruction(double forwardDistance, double radius, boolean largeArc, boolean sweep) {
+        this.forwardDistance = forwardDistance;
         this.radius = radius;
-        this.initialHeading = initialHeading;
-        this.arcLength = arcLength;
+        this.largeArc = largeArc;
+        this.sweep = sweep;
     }
 
     @Override
-    public void execute(DrawingManager manager) {
-        manager.moveForward(radius * 2);
+    public void execute(DrawingManager manager, Path path) {
+        manager.moveForward(forwardDistance);
 
-//        ArcTo arc = new ArcTo();
-//        arc.setX(centerPosition.getLayoutX());
-//        arc.setY(centerPosition.getLayoutY());
-//        arc.setRadiusX(radius);
-//        arc.setRadiusY(radius);
-//        arc.setStartAngle(initialHeading);
-//        arc.setLength(arcLength);
-//        arc.setType(ArcType.CHORD);
-
-        manager.updatePosition();
-//        manager.placeGraphic(arc);
+        if (manager.isPenDown()) {
+            ArcTo arc = new ArcTo();
+            arc.setRadiusX(radius);
+            arc.setRadiusY(radius);
+            arc.setX(manager.getPosition().getLayoutX());
+            arc.setY(manager.getPosition().getLayoutY());
+            arc.setLargeArcFlag(largeArc);
+            arc.setSweepFlag(sweep);
+            path.getElements().add(arc);
+        } else {
+            path.getElements().add(new MoveTo(manager.getPosition().getLayoutX(), manager.getPosition().getLayoutY()));
+        }
     }
 
     @Override
-    public Animation createAnimation(DrawingManager manager) {
-        return null;
+    public Animation createAnimation(DrawingManager manager, Path path) {
+        TurtlePosition position = manager.getPosition();
+        double initialX = position.getX();
+        double initialY = position.getY();
+        double heading = position.getHeading();
+        double finalX = position.getX() + forwardDistance * Math.cos(Math.toRadians(heading));
+        double finalY = position.getY() + forwardDistance * Math.sin(Math.toRadians(heading));
+
+
+        DoubleProperty progress = new SimpleDoubleProperty();
+
+        if (manager.isPenDown()) {
+            ArcTo arc = new ArcTo();
+            arc.setRadiusX(radius);
+            arc.setRadiusY(radius);
+            arc.setLargeArcFlag(largeArc);
+            arc.setSweepFlag(sweep);
+            arc.xProperty().bind(position.layoutXProperty());
+            arc.yProperty().bind(position.layoutYProperty());
+            path.getElements().add(arc);
+        } else {
+            MoveTo moveTo = new MoveTo();
+            moveTo.xProperty().bind(position.layoutXProperty());
+            moveTo.yProperty().bind(position.layoutYProperty());
+            path.getElements().add(moveTo);
+        }
+
+        // TODO: Make this curve around
+        position.xProperty().bind(Bindings.createDoubleBinding(
+                () -> initialX + progress.get() * Math.cos(Math.toRadians(heading)),
+                progress
+        ));
+
+        position.yProperty().bind(Bindings.createDoubleBinding(
+                () -> initialY + progress.get() * Math.sin(Math.toRadians(heading)),
+                progress
+        ));
+
+        return new Animation(progress, forwardDistance, Math.abs(forwardDistance) * SettingsManager.getMovementAnimationMultiplier());
     }
 }

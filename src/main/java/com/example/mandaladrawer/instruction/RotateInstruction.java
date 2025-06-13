@@ -7,6 +7,7 @@ import com.example.mandaladrawer.TurtlePosition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.scene.shape.Path;
 
 public class RotateInstruction extends Instruction {
 
@@ -18,14 +19,12 @@ public class RotateInstruction extends Instruction {
     }
 
     @Override
-    public void execute(DrawingManager manager) {
+    public void execute(DrawingManager manager, Path path) {
         manager.rotate(angle);
-
-        manager.updatePosition();
     }
 
     @Override
-    public Animation createAnimation(DrawingManager manager) {
+    public Animation createAnimation(DrawingManager manager, Path path) {
         TurtlePosition position = manager.getPosition();
         double initialHeading = position.getHeading();
 

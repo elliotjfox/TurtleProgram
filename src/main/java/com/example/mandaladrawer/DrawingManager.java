@@ -3,10 +3,13 @@ package com.example.mandaladrawer;
 import com.example.mandaladrawer.event.BeginMoveAnimationEvent;
 import com.example.mandaladrawer.event.EndAnimationEvent;
 import com.example.mandaladrawer.event.MoveEvent;
+import com.example.mandaladrawer.event.StartPathEvent;
 import com.example.mandaladrawer.instruction.Instruction;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.scene.Node;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.MoveTo;
+import javafx.scene.shape.Path;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,12 +24,13 @@ public class DrawingManager {
     private TurtlePosition previousPosition;
 
     private Program currentProgram;
+    private Path currentPath;
 
-    private final List<EventHandler<DrawEvent>> onLineAdded;
     private final List<EventHandler<ActionEvent>> onClear;
     private final List<EventHandler<MoveEvent>> onMove;
     private final List<EventHandler<BeginMoveAnimationEvent>> onBeginAnimation;
     private final List<EventHandler<EndAnimationEvent>> onEndAnimation;
+    private final List<EventHandler<StartPathEvent>> onPathStart;
 
     private Animation currentAnimation;
 
@@ -34,18 +38,14 @@ public class DrawingManager {
         this.height = height;
         this.width = width;
 
-        onLineAdded = new ArrayList<>();
         onClear = new ArrayList<>();
         onMove = new ArrayList<>();
         onBeginAnimation = new ArrayList<>();
         onEndAnimation = new ArrayList<>();
+        onPathStart = new ArrayList<>();
 
         penDown = true;
         currentPosition = new TurtlePosition(0, 0, 0, width, height);
-    }
-
-    public void addOnLineAddedHandler(EventHandler<DrawEvent> handler) {
-        onLineAdded.add(handler);
     }
 
     public void addOnClearHandler(EventHandler<ActionEvent> handler) {
@@ -64,11 +64,21 @@ public class DrawingManager {
         onEndAnimation.add(handler);
     }
 
+    public void addPathStart(EventHandler<StartPathEvent> handler) {
+        onPathStart.add(handler);
+    }
+
     public void loadProgram(Program program) {
         currentProgram = program;
         currentPosition = new TurtlePosition(0, 0, 0, width, height);
         updatePosition();
         clear();
+        currentPath = new Path(new MoveTo(currentPosition.getLayoutX(), currentPosition.getLayoutY()));
+
+        StartPathEvent event = new StartPathEvent(currentPath);
+        for (EventHandler<StartPathEvent> eventHandler : onPathStart) {
+            eventHandler.handle(event);
+        }
 
         System.out.println("Program loaded - " + program.getInstructionSize() + " instructions");
     }
@@ -92,7 +102,8 @@ public class DrawingManager {
 
         Instruction currentInstruction = currentProgram.getNextInstruction();
 
-        currentInstruction.execute(this);
+        currentInstruction.execute(this, currentPath);
+        updatePosition();
     }
 
     public void drawAnimated() {
@@ -114,10 +125,11 @@ public class DrawingManager {
         previousPosition = currentPosition;
         currentPosition = currentPosition.copy();
 
-        Animation animation = currentInstruction.createAnimation(this);
+        Animation animation = currentInstruction.createAnimation(this, currentPath);
 
         if (animation == null) {
-            currentInstruction.execute(this);
+            currentInstruction.execute(this, currentPath);
+            updatePosition();
             animateNextInstruction();
         } else {
             animation.onFinished(this, endAnimationEvent -> {
@@ -181,33 +193,9 @@ public class DrawingManager {
         penDown = true;
     }
 
-    public void moved() {
-        updatePosition();
-
-        if (penDown) {
-            placeLine(previousPosition, currentPosition);
-        }
-    }
-
     public void updatePosition() {
         MoveEvent event = new MoveEvent(currentPosition);
         for (EventHandler<MoveEvent> eventHandler : onMove) {
-            eventHandler.handle(event);
-        }
-    }
-
-    public void placeLine(TurtlePosition pos1, TurtlePosition pos2) {
-        DrawEvent event = new DrawEvent(pos1, null);
-        for (EventHandler<DrawEvent> eventHandler : onLineAdded) {
-            eventHandler.handle(event);
-        }
-    }
-
-    public void placeGraphic(Node graphic) {
-        if (!penDown) return;
-
-        DrawEvent event = new DrawEvent(previousPosition, graphic);
-        for (EventHandler<DrawEvent> eventHandler : onLineAdded) {
             eventHandler.handle(event);
         }
     }
@@ -237,10 +225,6 @@ public class DrawingManager {
 
     public TurtlePosition getPosition() {
         return currentPosition;
-    }
-
-    public TurtlePosition getPreviousPosition() {
-        return previousPosition;
     }
 
     public double getHeight() {

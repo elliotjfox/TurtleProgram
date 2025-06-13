@@ -6,6 +6,9 @@ import com.example.mandaladrawer.Program;
 import com.example.mandaladrawer.Widgets;
 import com.example.mandaladrawer.parser.ProgramData;
 import javafx.animation.Timeline;
+import javafx.beans.binding.Binding;
+import javafx.beans.binding.Bindings;
+import javafx.collections.ListChangeListener;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
@@ -14,6 +17,7 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.PathElement;
 import javafx.scene.shape.Polygon;
 import javafx.scene.transform.Rotate;
 import javafx.util.Builder;
@@ -66,17 +70,7 @@ public class DisplayBuilder implements Builder<Region> {
         Pane inkDisplay = new Pane();
         inkDisplay.setMouseTransparent(true);
 
-        manager.addOnLineAddedHandler(drawEvent -> inkDisplay.getChildren().add(drawEvent.getGraphic()));
-
-        manager.addOnBeginAnimation(animationEvent -> {
-            if (!animationEvent.isPenDown()) return;
-            Line line = new Line();
-            line.setStartX(animationEvent.getPreviousPosition().getLayoutX());
-            line.setStartY(animationEvent.getPreviousPosition().getLayoutY());
-            line.endXProperty().bind(animationEvent.getPosition().layoutXProperty());
-            line.endYProperty().bind(animationEvent.getPosition().layoutYProperty());
-            inkDisplay.getChildren().add(line);
-        });
+        manager.addPathStart(startPathEvent -> inkDisplay.getChildren().add(startPathEvent.getPath()));
 
         manager.addOnClearHandler(_ -> inkDisplay.getChildren().clear());
 
