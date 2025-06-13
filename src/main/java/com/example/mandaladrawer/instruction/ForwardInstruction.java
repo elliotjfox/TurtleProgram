@@ -7,6 +7,7 @@ import com.example.mandaladrawer.TurtlePosition;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.DoubleProperty;
 import javafx.beans.property.SimpleDoubleProperty;
+import javafx.scene.shape.Line;
 
 public class ForwardInstruction extends Instruction {
 
@@ -22,7 +23,14 @@ public class ForwardInstruction extends Instruction {
     public void execute(DrawingManager manager) {
         manager.moveForward(distance);
 
-        manager.moved();
+        Line line = new Line();
+        line.setStartX(manager.getPreviousPosition().getLayoutX());
+        line.setStartY(manager.getPreviousPosition().getLayoutY());
+        line.setEndX(manager.getPosition().getLayoutX());
+        line.setEndY(manager.getPosition().getLayoutY());
+
+        manager.updatePosition();
+        manager.placeGraphic(line);
     }
 
     @Override

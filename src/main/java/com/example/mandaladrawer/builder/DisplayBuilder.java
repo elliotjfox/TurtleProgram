@@ -66,14 +66,7 @@ public class DisplayBuilder implements Builder<Region> {
         Pane inkDisplay = new Pane();
         inkDisplay.setMouseTransparent(true);
 
-        manager.addOnLineAddedHandler(drawEvent -> inkDisplay.getChildren().add(
-                new Line(
-                        drawEvent.getPos1().getLayoutX(),
-                        drawEvent.getPos1().getLayoutY(),
-                        drawEvent.getPos2().getLayoutX(),
-                        drawEvent.getPos2().getLayoutY()
-                )
-        ));
+        manager.addOnLineAddedHandler(drawEvent -> inkDisplay.getChildren().add(drawEvent.getGraphic()));
 
         manager.addOnBeginAnimation(animationEvent -> {
             if (!animationEvent.isPenDown()) return;

@@ -6,6 +6,7 @@ import com.example.mandaladrawer.event.MoveEvent;
 import com.example.mandaladrawer.instruction.Instruction;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
+import javafx.scene.Node;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -196,7 +197,16 @@ public class DrawingManager {
     }
 
     public void placeLine(TurtlePosition pos1, TurtlePosition pos2) {
-        DrawEvent event = new DrawEvent(pos1, pos2);
+        DrawEvent event = new DrawEvent(pos1, null);
+        for (EventHandler<DrawEvent> eventHandler : onLineAdded) {
+            eventHandler.handle(event);
+        }
+    }
+
+    public void placeGraphic(Node graphic) {
+        if (!penDown) return;
+
+        DrawEvent event = new DrawEvent(previousPosition, graphic);
         for (EventHandler<DrawEvent> eventHandler : onLineAdded) {
             eventHandler.handle(event);
         }
@@ -227,6 +237,10 @@ public class DrawingManager {
 
     public TurtlePosition getPosition() {
         return currentPosition;
+    }
+
+    public TurtlePosition getPreviousPosition() {
+        return previousPosition;
     }
 
     public double getHeight() {

@@ -1,21 +1,22 @@
 package com.example.mandaladrawer;
 
 import javafx.event.ActionEvent;
+import javafx.scene.Node;
 
 public class DrawEvent extends ActionEvent {
     private final TurtlePosition pos1;
-    private final TurtlePosition pos2;
+    private final Node graphic;
 
-    public DrawEvent(TurtlePosition pos1, TurtlePosition pos2) {
+    public DrawEvent(TurtlePosition pos1, Node graphic) {
         this.pos1 = pos1;
-        this.pos2 = pos2;
+        this.graphic = graphic;
     }
 
     public TurtlePosition getPos1() {
         return pos1;
     }
 
-    public TurtlePosition getPos2() {
-        return pos2;
+    public Node getGraphic() {
+        return graphic;
     }
 }
